@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { KeyRound, ShieldCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import './account-security.css';
 
 export function AccountSecurity({ email }: { email: string }) {
   const [password, setPassword] = useState('');
