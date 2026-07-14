@@ -1,8 +1,12 @@
 {
   "name": "concentrix-smart-coffee",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=20 <23"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
