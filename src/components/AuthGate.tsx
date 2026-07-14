@@ -24,14 +24,21 @@ export function AuthGate({ onAuthenticated }: AuthGateProps) {
         setError('The initial administrator must use matt@dallmayr.co.za.');
         return;
       }
-      const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+
+      const emailRedirectTo = `${window.location.origin}/`;
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo },
+      });
+
       setSubmitting(false);
       if (signUpError) {
         setError(signUpError.message);
         return;
       }
       if (!data.session) {
-        setMessage('Account created. Check matt@dallmayr.co.za for the Supabase confirmation email, then sign in.');
+        setMessage(`Account created. Check matt@dallmayr.co.za for the confirmation email. After confirmation you will return to ${emailRedirectTo}`);
         setCreateMode(false);
         return;
       }
