@@ -14,7 +14,7 @@ const nav: NavItem[] = [
 ];
 
 function titleCase(value: string) {
-  return value.replaceAll('_', ' ').replace(/\b\w/g, letter => letter.toUpperCase());
+  return value.replace(/_/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase());
 }
 
 function elapsed(iso: string) {
@@ -75,7 +75,7 @@ export default function App() {
       <section className="content">
         {error && <div className="data-error"><AlertTriangle size={18}/><div><strong>Supabase could not return operational data.</strong><span>{error}. Confirm this user has an active organisation membership.</span></div><button onClick={() => void refresh()}>Retry</button></div>}
         <div className="hero"><div><span className="live"><i/>Connected to Concentrix Supabase</span><h2>Smart coffee, secure access and service control.</h2><p>Live operational data from employee entitlements, security cards, Nayax transactions, machines, incidents and field service.</p>{lastUpdated && <small>Last refreshed {lastUpdated.toLocaleTimeString('en-ZA')}</small>}</div><button><QrCode size={18}/>Scan machine QR</button></div>
-        <div className="kpi-grid">{kpis.map(([title,value,detail,Icon])=><article className="kpi" key={title as string}><div className="kpi-icon"><Icon size={21}/></div><div><p>{title}</p><h3>{value}</h3><span>{detail}</span></div></article>)}</div>
+        <div className="kpi-grid">{kpis.map(([title,value,detail,Icon])=><article className="kpi" key={title}><div className="kpi-icon"><Icon size={21}/></div><div><p>{title}</p><h3>{value}</h3><span>{detail}</span></div></article>)}</div>
         <div className="dashboard-grid">
           <section className="panel wide"><div className="panel-head"><div><p className="eyebrow">Estate health</p><h3>Machine status</h3></div><button onClick={() => setActive('Machines')}>View all</button></div><div className="table-wrap"><table><thead><tr><th>Machine</th><th>Location</th><th>Status</th><th>Last communication</th></tr></thead><tbody>{data.machines.length ? data.machines.map(machine=><tr key={machine.id}><td><strong>{machine.asset_number}</strong><small>{machine.display_name}</small></td><td>{machine.site?.name ?? 'No site'}{machine.exact_location ? ` · ${machine.exact_location}` : ''}</td><td><span className={`status ${machine.status}`}>{titleCase(machine.status)}</span></td><td>{machine.last_communication_at ? new Date(machine.last_communication_at).toLocaleString('en-ZA') : 'Never'}</td></tr>) : <tr><td colSpan={4} className="empty-state">No machines have been loaded into Supabase yet.</td></tr>}</tbody></table></div></section>
           <section className="panel"><div className="panel-head"><div><p className="eyebrow">Benefits</p><h3>Today’s usage</h3></div></div><div className="donut" style={{background:`conic-gradient(var(--green) 0 ${benefitUsage}%,#29302b ${benefitUsage}% 100%)`}}><div><strong>{benefitUsage}%</strong><span>coffees per eligible staff</span></div></div><div className="legend"><span><i className="free"/>Benefit coffees <b>{data.coffeesToday}</b></span><span><i className="reward"/>Eligible employees <b>{data.eligibleEmployees}</b></span><span><i className="paid"/>Active cards <b>{data.activeCards}</b></span></div></section>
