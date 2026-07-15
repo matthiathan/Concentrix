@@ -19,7 +19,7 @@ export function useOperationsData(enabled: boolean) {
     setError(null);
     const results = await Promise.all([
       supabase.from('employees').select('id,organization_id,employee_number,first_name,last_name,work_email,phone,employment_status,benefit_eligible,primary_site:sites(name),updated_at').order('last_name').limit(500),
-      supabase.from('access_cards').select('id,organization_id,credential_reference,masked_identifier,card_type,technology,status,issued_at,expires_at,last_used_at,updated_at').order('updated_at',{ascending:false}).limit(500),
+      supabase.from('access_cards').select('id,organization_id,credential_reference,masked_identifier,card_type,technology,frequency,status,issued_at,expires_at,last_used_at,updated_at,assignments:employee_card_assignments(id,assignment_status,valid_from,valid_to,employee:employees(id,employee_number,first_name,last_name,work_email))').order('updated_at',{ascending:false}).limit(500),
       supabase.from('sites').select('id,client_organization_id,provider_organization_id,code,name,address_line_1,address_line_2,suburb,city,province,postal_code,country_code,client_contact_name,client_contact_email,client_contact_phone,is_active,updated_at').order('name').limit(500),
       supabase.from('machines').select('id,provider_organization_id,client_organization_id,site_id,site_area_id,machine_model_id,asset_number,serial_number,display_name,exact_location,installation_date,commissioned_at,warranty_expires_on,status,last_transaction_at,last_communication_at,last_service_at,next_service_due_at,qr_version,is_active,site:sites(id,code,name),model:machine_models(manufacturer,model_name,machine_type),area:site_areas(floor_name,area_name,location_description),updated_at').order('updated_at',{ascending:false}).limit(500),
       supabase.from('machine_models').select('id,manufacturer,model_name,machine_type,required_skill_level,documentation').order('manufacturer').order('model_name'),
@@ -57,6 +57,7 @@ export function useOperationsData(enabled: boolean) {
     const channel = supabase.channel('concentrix-operations')
       .on('postgres_changes',{event:'*',schema:'public',table:'employees'},()=>void load())
       .on('postgres_changes',{event:'*',schema:'public',table:'access_cards'},()=>void load())
+      .on('postgres_changes',{event:'*',schema:'public',table:'employee_card_assignments'},()=>void load())
       .on('postgres_changes',{event:'*',schema:'public',table:'sites'},()=>void load())
       .on('postgres_changes',{event:'*',schema:'public',table:'machines'},()=>void load())
       .on('postgres_changes',{event:'*',schema:'public',table:'machine_models'},()=>void load())
