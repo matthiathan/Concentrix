@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { Activity, AlertTriangle, Bell, Coffee, CreditCard, FileSpreadsheet, Gauge, LayoutDashboard, LogOut, MapPin, Menu, QrCode, RefreshCw, Search, Settings, ShieldCheck, Users, Wrench, X } from 'lucide-react';
 import { AccountSecurity } from './components/AccountSecurity';
@@ -25,19 +25,40 @@ function elapsed(iso: string) { const minutes=Math.max(0,Math.floor((Date.now()-
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [securityLoading, setSecurityLoading] = useState(true);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
   const [active, setActive] = useState('Dashboard');
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [notificationsOpen,setNotificationsOpen]=useState(false);
   const [scannerOpen,setScannerOpen]=useState(false);
-  const dashboard = useDashboardData(Boolean(session));
-  const operations = useOperationsData(Boolean(session));
+  const operationsEnabled = Boolean(session) && !securityLoading && !mustChangePassword;
+  const dashboard = useDashboardData(operationsEnabled);
+  const operations = useOperationsData(operationsEnabled);
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => { setSession(data.session); setAuthLoading(false); });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => { setSession(nextSession); setAuthLoading(false); });
     return () => listener.subscription.unsubscribe();
   }, []);
+
+  const loadSecurityState = useCallback(async () => {
+    if (!session?.user.id) {
+      setMustChangePassword(false);
+      setSecurityLoading(false);
+      return;
+    }
+    setSecurityLoading(true);
+    const { data, error } = await supabase
+      .from('user_security_state')
+      .select('must_change_password')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    setMustChangePassword(!error && data?.must_change_password === true);
+    setSecurityLoading(false);
+  }, [session?.user.id]);
+
+  useEffect(() => { void loadSecurityState(); }, [loadSecurityState]);
 
   const uptime = dashboard.data.totalMachines ? Math.round((dashboard.data.activeMachines / dashboard.data.totalMachines) * 1000) / 10 : 0;
   const benefitUsage = dashboard.data.eligibleEmployees ? Math.min(100, Math.round((dashboard.data.coffeesToday / dashboard.data.eligibleEmployees) * 100)) : 0;
@@ -47,6 +68,8 @@ export default function App() {
 
   if (authLoading) return <Loader />;
   if (!session) return <AuthGate onAuthenticated={() => undefined} />;
+  if (securityLoading) return <Loader />;
+  if (mustChangePassword) return <main className="auth-screen"><AccountSecurity email={session.user.email ?? 'Unknown account'} forced onComplete={loadSecurityState}/></main>;
   if (dashboard.loading || operations.loading) return <Loader />;
 
   const kpis: Array<[string, string, string, typeof Activity]> = [
