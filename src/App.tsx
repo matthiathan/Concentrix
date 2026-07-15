@@ -1,18 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { Activity, AlertTriangle, Bell, Coffee, CreditCard, Gauge, LayoutDashboard, LogOut, MapPin, Menu, QrCode, RefreshCw, Search, Settings, ShieldCheck, Users, Wrench, X } from 'lucide-react';
+import { Activity, AlertTriangle, Bell, Coffee, CreditCard, FileSpreadsheet, Gauge, LayoutDashboard, LogOut, MapPin, Menu, QrCode, RefreshCw, Search, Settings, ShieldCheck, Users, Wrench, X } from 'lucide-react';
 import { AccountSecurity } from './components/AccountSecurity';
 import { AuthGate } from './components/AuthGate';
 import { Loader } from './components/Loader';
 import { MachineLookup } from './components/MachineLookup';
 import { OperationsPage } from './components/OperationsPage';
+import { StaffImportPage } from './components/StaffImportPage';
 import { useDashboardData } from './hooks/useDashboardData';
 import { useOperationsData } from './hooks/useOperationsData';
 import { supabase } from './lib/supabase';
 
 type NavItem = { label: string; icon: typeof LayoutDashboard };
 const nav: NavItem[] = [
-  { label: 'Dashboard', icon: LayoutDashboard }, { label: 'Employees', icon: Users }, { label: 'Cards & Benefits', icon: CreditCard },
+  { label: 'Dashboard', icon: LayoutDashboard }, { label: 'Employees', icon: Users }, { label: 'Staff Imports', icon: FileSpreadsheet }, { label: 'Cards & Benefits', icon: CreditCard },
   { label: 'Sites', icon: MapPin }, { label: 'Machines', icon: Coffee }, { label: 'Tasks', icon: Wrench },
   { label: 'Incidents', icon: AlertTriangle }, { label: 'Reports', icon: Gauge }, { label: 'Administration', icon: Settings },
 ];
@@ -42,6 +43,7 @@ export default function App() {
   const benefitUsage = dashboard.data.eligibleEmployees ? Math.min(100, Math.round((dashboard.data.coffeesToday / dashboard.data.eligibleEmployees) * 100)) : 0;
   const initials = useMemo(() => (session?.user.email ?? 'User').split('@')[0].split(/[._-]/).map(part => part[0]).join('').slice(0, 2).toUpperCase(), [session]);
   const openIncidents=operations.data.incidents.filter(i=>!['closed','cancelled','resolved'].includes(i.status));
+  const organizationId = operations.data.memberships[0]?.organization_id as string | undefined;
 
   if (authLoading) return <Loader />;
   if (!session) return <AuthGate onAuthenticated={() => undefined} />;
@@ -56,7 +58,7 @@ export default function App() {
     ['Benefit coffees today', dashboard.data.coffeesToday.toLocaleString(), 'Approved Nayax transactions', Gauge],
   ];
 
-  function navigate(page:string){setActive(page);setOpen(false);if(page==='Dashboard'||page==='Administration')setSearch('');}
+  function navigate(page:string){setActive(page);setOpen(false);if(page==='Dashboard'||page==='Administration'||page==='Staff Imports')setSearch('');}
   function showMachine(machine:Record<string,any>){setScannerOpen(false);setSearch(machine.asset_number);setActive('Machines');}
 
   return <div className="app-shell">
@@ -67,13 +69,15 @@ export default function App() {
     </aside>
     <main>
       <header><button className="menu" onClick={()=>setOpen(value=>!value)}><Menu/></button><div><p className="eyebrow">Dallmayr × Concentrix</p><h1>{active}</h1></div><div className="header-actions">
-        <label className="search"><Search size={17}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search current page…"/>{search&&<button onClick={()=>setSearch('')} aria-label="Clear search"><X size={14}/></button>}</label>
+        <label className="search"><Search size={17}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search current page…" disabled={active==='Staff Imports'}/>{search&&<button onClick={()=>setSearch('')} aria-label="Clear search"><X size={14}/></button>}</label>
         <button className="icon-button" title="Refresh live data" onClick={() => {void dashboard.refresh();void operations.refresh();}}><RefreshCw size={18}/></button>
         <button className="icon-button" title="Open incidents" onClick={()=>setNotificationsOpen(v=>!v)}><Bell size={19}/>{openIncidents.length>0&&<span/>}</button>
         <div className="avatar" title={session.user.email}>{initials}</div>
       </div>{notificationsOpen&&<div className="notification-panel"><div className="panel-head"><div><p className="eyebrow">Notifications</p><h3>Open incidents</h3></div><button onClick={()=>setNotificationsOpen(false)}><X size={16}/></button></div>{openIncidents.length?openIncidents.slice(0,8).map(i=><button key={i.id} className="notification-item" onClick={()=>{setNotificationsOpen(false);setActive('Incidents');setSearch(i.title)}}><strong>{i.title}</strong><span>{titleCase(i.severity)} · {elapsed(i.detected_at)}</span></button>):<p className="empty-state">No open incidents.</p>}</div>}</header>
       <section className="content">
-        {active === 'Administration' ? <AccountSecurity email={session.user.email ?? 'Unknown account'} /> : operationalPages.has(active) ? (
+        {active === 'Administration' ? <AccountSecurity email={session.user.email ?? 'Unknown account'} /> : active === 'Staff Imports' ? (
+          <StaffImportPage organizationId={organizationId} onClose={()=>navigate('Employees')} />
+        ) : operationalPages.has(active) ? (
           <OperationsPage page={active} data={operations.data} search={search} error={operations.error} refresh={operations.refresh} update={operations.update} create={operations.create}/>
         ) : <>
           {(dashboard.error||operations.error)&&<div className="data-error"><AlertTriangle size={18}/><div><strong>Supabase could not return all operational data.</strong><span>{dashboard.error??operations.error}</span></div><button onClick={()=>{void dashboard.refresh();void operations.refresh()}}>Retry</button></div>}
