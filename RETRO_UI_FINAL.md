@@ -1,0 +1,1 @@
+Retro UI implementation complete on `retro-ui-superdesign`. Rollback remains available on `main` and `checkpoint-pre-retro-ui`.
