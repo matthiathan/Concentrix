@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
-import { KeyRound, Network, RefreshCw, ShieldCheck, Users } from 'lucide-react';
+import { Network, RefreshCw, ShieldCheck, Users } from 'lucide-react';
 import type { OperationsData } from '../hooks/useOperationsData';
-import { AccountSecurity } from './AccountSecurity';
 import './administration-page.css';
 
 type Props = {
@@ -12,7 +11,7 @@ type Props = {
   onOpenNayax: () => void;
 };
 
-type Tab = 'overview' | 'roles' | 'security';
+type Tab = 'overview' | 'roles';
 
 const titleCase = (value: string) => value.replace(/_/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase());
 
@@ -43,8 +42,8 @@ export function AdministrationPage({ email, data, error, refresh, onOpenNayax }:
       <div className="page-toolbar">
         <div>
           <p className="eyebrow">Access and platform control</p>
-          <h2>Administration</h2>
-          <p>Manage administrator access, account security and platform readiness.</p>
+          <h2>Admin Console</h2>
+          <p>Review administrator access, organisation roles and platform readiness.</p>
         </div>
         <button onClick={() => void handleRefresh()} disabled={refreshing}>
           <RefreshCw size={16} className={refreshing ? 'spin' : ''}/>
@@ -57,7 +56,6 @@ export function AdministrationPage({ email, data, error, refresh, onOpenNayax }:
       <div className="admin-tabs" role="tablist" aria-label="Administration sections">
         <button className={tab === 'overview' ? 'active' : ''} onClick={() => setTab('overview')}><ShieldCheck size={17}/>Overview</button>
         <button className={tab === 'roles' ? 'active' : ''} onClick={() => setTab('roles')}><Users size={17}/>Roles</button>
-        <button className={tab === 'security' ? 'active' : ''} onClick={() => setTab('security')}><KeyRound size={17}/>Account security</button>
       </div>
 
       {tab === 'overview' && <>
@@ -97,8 +95,6 @@ export function AdministrationPage({ email, data, error, refresh, onOpenNayax }:
           </table>
         </div>
       </section>}
-
-      {tab === 'security' && <AccountSecurity email={email}/>} 
     </div>
   );
 }
