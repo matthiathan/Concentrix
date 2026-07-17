@@ -2,6 +2,7 @@ import { AlertTriangle, CheckCircle2, CircleDashed, RefreshCw, RotateCcw, Shield
 import { useState } from 'react';
 import type { OperationsData } from '../hooks/useOperationsData';
 import { supabase } from '../lib/supabase';
+import './integration-control.css';
 
 type Props={data:OperationsData;error:string|null;refresh:()=>Promise<void>};
 const label=(v:string)=>v.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
