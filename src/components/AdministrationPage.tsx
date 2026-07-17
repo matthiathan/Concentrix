@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { KeyRound, Network, RefreshCw, ShieldCheck, Users } from 'lucide-react';
 import type { OperationsData } from '../hooks/useOperationsData';
 import { AccountSecurity } from './AccountSecurity';
+import './administration-page.css';
 
 type Props = {
   email: string;
