@@ -6,9 +6,9 @@ export type OperationsData = {
   employees: Row[]; cards: Row[]; sites: Row[]; machines: Row[];
   machineModels: Row[]; siteAreas: Row[];
   tasks: Row[]; incidents: Row[]; transactions: Row[]; memberships: Row[];
-  integrationConnections: Row[]; integrationRuns: Row[]; nayaxCardLinks: Row[]; auditLogs: Row[];
+  integrationConnections: Row[]; integrationRuns: Row[]; nayaxCardLinks: Row[]; auditLogs: Row[]; integrationOutbox: Row[];
 };
-const empty: OperationsData = { employees: [], cards: [], sites: [], machines: [], machineModels: [], siteAreas: [], tasks: [], incidents: [], transactions: [], memberships: [], integrationConnections: [], integrationRuns: [], nayaxCardLinks: [], auditLogs: [] };
+const empty: OperationsData = { employees: [], cards: [], sites: [], machines: [], machineModels: [], siteAreas: [], tasks: [], incidents: [], transactions: [], memberships: [], integrationConnections: [], integrationRuns: [], nayaxCardLinks: [], auditLogs: [], integrationOutbox: [] };
 
 export function useOperationsData(enabled: boolean) {
   const [data, setData] = useState<OperationsData>(empty);
@@ -33,6 +33,7 @@ export function useOperationsData(enabled: boolean) {
       supabase.from('integration_runs').select('id,connection_id,started_at,completed_at,status,records_received,records_processed,records_failed,error_summary').order('started_at',{ascending:false}).limit(100),
       supabase.from('nayax_card_links').select('id,access_card_id,nayax_card_id,link_status,last_sync_status,last_sync_error,activated_at,deactivated_at,updated_at,card:access_cards(masked_identifier,credential_reference)').order('updated_at',{ascending:false}).limit(500),
       supabase.from('audit_logs').select('id,organization_id,actor_user_id,action,entity_table,entity_id,reason,request_id,occurred_at').order('occurred_at',{ascending:false}).limit(100),
+      supabase.from('integration_outbox').select('id,organization_id,aggregate_type,aggregate_id,operation,status,attempts,next_retry_at,last_error,correlation_id,created_at,updated_at,processed_at').order('created_at',{ascending:false}).limit(500),
     ]);
     const firstError = results.find(result => result.error)?.error;
     if (firstError) { setError(firstError.message); setLoading(false); return; }
@@ -40,7 +41,7 @@ export function useOperationsData(enabled: boolean) {
       employees: results[0].data ?? [], cards: results[1].data ?? [], sites: results[2].data ?? [], machines: results[3].data ?? [],
       machineModels: results[4].data ?? [], siteAreas: results[5].data ?? [],
       tasks: results[6].data ?? [], incidents: results[7].data ?? [], transactions: results[8].data ?? [], memberships: results[9].data ?? [],
-      integrationConnections: results[10].data ?? [], integrationRuns: results[11].data ?? [], nayaxCardLinks: results[12].data ?? [], auditLogs: results[13].data ?? [],
+      integrationConnections: results[10].data ?? [], integrationRuns: results[11].data ?? [], nayaxCardLinks: results[12].data ?? [], auditLogs: results[13].data ?? [], integrationOutbox: results[14].data ?? [],
     });
     setLoading(false);
   }, [enabled]);
@@ -71,6 +72,7 @@ export function useOperationsData(enabled: boolean) {
       .on('postgres_changes',{event:'*',schema:'public',table:'integration_connections'},()=>void load())
       .on('postgres_changes',{event:'*',schema:'public',table:'integration_runs'},()=>void load())
       .on('postgres_changes',{event:'*',schema:'public',table:'nayax_card_links'},()=>void load())
+      .on('postgres_changes',{event:'*',schema:'public',table:'integration_outbox'},()=>void load())
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
   }, [enabled, load]);
