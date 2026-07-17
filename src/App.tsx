@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { Activity, AlertTriangle, Bell, Coffee, CreditCard, FileSpreadsheet, Gauge, KeyRound, LayoutDashboard, LogOut, MapPin, Menu, Network, QrCode, RefreshCw, Search, Settings, ShieldCheck, Users, Wrench, X } from 'lucide-react';
 import { AccountSecurity } from './components/AccountSecurity';
+import { AccountSecurityRoute } from './components/AccountSecurityRoute';
 import { AdministrationPage } from './components/AdministrationPage';
 import { AuthGate } from './components/AuthGate';
 import { IntegrationControlPage } from './components/IntegrationControlPage';
@@ -80,7 +81,7 @@ export default function App(){
   <main><header><button className="menu" onClick={()=>setOpen(v=>!v)}><Menu/></button><div><p className="eyebrow">Dallmayr × Concentrix</p><h1>{active}</h1></div><div className="header-actions"><label className="search"><Search size={17}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search current page…" disabled={['Staff Imports','Nayax Integration','Admin Console','Account Security'].includes(active)}/>{search&&<button onClick={()=>setSearch('')} aria-label="Clear search"><X size={14}/></button>}</label><button className="icon-button" title="Refresh live data" onClick={()=>{void dashboard.refresh();void operations.refresh()}}><RefreshCw size={18}/></button><button className="icon-button" title="Open incidents" onClick={()=>setNotificationsOpen(v=>!v)}><Bell size={19}/>{openIncidents.length>0&&<span/>}</button><div className="avatar" title={session.user.email}>{initials}</div></div>{notificationsOpen&&<div className="notification-panel"><div className="panel-head"><div><p className="eyebrow">Notifications</p><h3>Open incidents</h3></div><button onClick={()=>setNotificationsOpen(false)}><X size={16}/></button></div>{openIncidents.length?openIncidents.slice(0,8).map(i=><button key={i.id} className="notification-item" onClick={()=>{setNotificationsOpen(false);setActive('Incidents');setSearch(i.title)}}><strong>{i.title}</strong><span>{titleCase(i.severity)} · {elapsed(i.detected_at)}</span></button>):<p className="empty-state">No open incidents.</p>}</div>}</header>
   <section className="content">
    {active==='Admin Console'?<AdministrationPage email={session.user.email??'Unknown account'} data={operations.data} error={operations.error} refresh={operations.refresh} onOpenNayax={()=>navigate('Nayax Integration')}/>
-   :active==='Account Security'?<AccountSecurity email={session.user.email??'Unknown account'}/>
+   :active==='Account Security'?<AccountSecurityRoute email={session.user.email??'Unknown account'} onBack={()=>navigate('Admin Console')}/>
    :active==='Nayax Integration'?<IntegrationControlPage data={operations.data} error={operations.error} refresh={operations.refresh}/>
    :active==='Staff Imports'?<StaffImportPage organizationId={organizationId} onClose={()=>navigate('Employees')}/>
    :active==='Machines'?<MachinesPage data={operations.data} search={search} error={operations.error} refresh={operations.refresh} update={operations.update} create={operations.create}/>
