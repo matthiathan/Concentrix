@@ -1,0 +1,25 @@
+:root{--accent:#d4af37;--accent-strong:#e4c75c;--accent-soft:rgba(212,175,55,.16);--accent-text:#fff3c0;--app-bg:#111315;--panel:#191c1f;--panel-2:#202428;--text:#f4f6f8;--muted:#9aa2aa;--line:#30353a}
+:root[data-accent='green']{--accent:#69c77b;--accent-strong:#91e39f;--accent-soft:rgba(105,199,123,.16);--accent-text:#dfffe5}
+:root[data-accent='blue']{--accent:#63a9ff;--accent-strong:#8fc2ff;--accent-soft:rgba(99,169,255,.16);--accent-text:#e3f0ff}
+:root[data-accent='purple']{--accent:#a77bff;--accent-strong:#c2a3ff;--accent-soft:rgba(167,123,255,.16);--accent-text:#f0e8ff}
+:root[data-accent='orange']{--accent:#f49a45;--accent-strong:#ffb66e;--accent-soft:rgba(244,154,69,.16);--accent-text:#fff0dd}
+:root[data-accent='red']{--accent:#ef6d76;--accent-strong:#ff9098;--accent-soft:rgba(239,109,118,.16);--accent-text:#ffe5e7}
+:root[data-accent='teal']{--accent:#4fc7bd;--accent-strong:#7addd5;--accent-soft:rgba(79,199,189,.16);--accent-text:#ddfffc}
+:root[data-theme='light']{--app-bg:#f4f6f8;--panel:#ffffff;--panel-2:#eef1f4;--text:#171a1d;--muted:#66707a;--line:#d9dee3}
+html,body,#root{background:var(--app-bg);color:var(--text)}
+body,.app-shell,.role-portal{background:var(--app-bg);color:var(--text)}
+.panel,.kpi,.security-panel,.integration-summary article,.admin-summary article{background:var(--panel);border-color:var(--line);color:var(--text)}
+.sidebar,header,.portal-header{background:var(--panel);border-color:var(--line)}
+.sidebar nav button.active,.sidebar nav button:hover,.portal-actions button:hover{color:var(--accent-text);background:var(--accent-soft);border-color:var(--accent)}
+button:not(.icon-button),.admin-action{accent-color:var(--accent)}
+.brand-mark,.kpi-icon,.security-icon{background:var(--accent-soft);color:var(--accent)}
+.live,.eyebrow{color:var(--accent)}
+.settings-backdrop{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.58);display:flex;justify-content:flex-end;padding:18px}
+.settings-menu{width:min(460px,100%);height:100%;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:0 24px 70px rgba(0,0,0,.34);display:grid;align-content:start;gap:24px;color:var(--text)}
+.settings-menu-head{display:flex;justify-content:space-between;gap:18px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.settings-menu-head h2{display:flex;align-items:center;gap:9px;margin:3px 0 7px}.settings-menu-head p:last-child{color:var(--muted);font-size:13px}
+.settings-group{display:grid;gap:14px}.settings-label{display:flex;gap:11px;align-items:flex-start}.settings-label>svg{color:var(--accent);margin-top:2px}.settings-label div{display:grid;gap:3px}.settings-label span{color:var(--muted);font-size:12px}
+.accent-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.accent-picker button,.appearance-picker button{border:1px solid var(--line);background:var(--panel-2);color:var(--text);border-radius:12px;padding:11px;display:grid;gap:7px;place-items:center;cursor:pointer}.accent-picker button.selected,.appearance-picker button.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.accent-picker i{width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.5)}[data-accent-swatch='gold']{background:#d4af37}[data-accent-swatch='green']{background:#69c77b}[data-accent-swatch='blue']{background:#63a9ff}[data-accent-swatch='purple']{background:#a77bff}[data-accent-swatch='orange']{background:#f49a45}[data-accent-swatch='red']{background:#ef6d76}[data-accent-swatch='teal']{background:#4fc7bd}.accent-picker span,.appearance-picker span{font-size:12px}.appearance-picker{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.appearance-picker button{display:flex;justify-content:center;gap:8px}
+.settings-foot{display:flex;justify-content:space-between;gap:16px;align-items:center;border-top:1px solid var(--line);padding-top:18px}.settings-foot span{color:var(--muted);font-size:12px}.settings-foot button{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-text);padding:10px 16px;border-radius:10px;cursor:pointer}
+@media(max-width:600px){.settings-backdrop{padding:0}.settings-menu{border-radius:0;width:100%;padding:20px}.accent-picker{grid-template-columns:repeat(3,1fr)}.settings-foot{align-items:flex-start;flex-direction:column}}
