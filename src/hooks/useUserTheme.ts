@@ -3,9 +3,11 @@ import { supabase } from '../lib/supabase';
 
 export type Appearance = 'system' | 'light' | 'dark';
 export type Accent = 'gold' | 'green' | 'blue' | 'purple' | 'orange' | 'red' | 'teal';
-export type ThemePreferences = { appearance: Appearance; accent: Accent };
+export type Background = 'solid' | 'gradient' | 'aurora' | 'mesh' | 'midnight' | 'sunrise';
+export type ThemeColor = 'neutral' | 'slate' | 'navy' | 'forest' | 'plum' | 'coffee' | 'sand';
+export type ThemePreferences = { appearance: Appearance; accent: Accent; background: Background; theme_color: ThemeColor };
 
-const fallback: ThemePreferences = { appearance: 'system', accent: 'gold' };
+const fallback: ThemePreferences = { appearance: 'system', accent: 'gold', background: 'solid', theme_color: 'neutral' };
 
 function applyTheme(preferences: ThemePreferences) {
   const root = document.documentElement;
@@ -15,6 +17,8 @@ function applyTheme(preferences: ThemePreferences) {
   root.dataset.theme = resolved;
   root.dataset.appearance = preferences.appearance;
   root.dataset.accent = preferences.accent;
+  root.dataset.background = preferences.background;
+  root.dataset.themeColor = preferences.theme_color;
   root.style.colorScheme = resolved;
 }
 
@@ -39,10 +43,10 @@ export function useUserTheme(userId?: string) {
   useEffect(() => {
     if (!userId) { setLoading(false); return; }
     let cancelled = false;
-    void supabase.from('user_interface_preferences').select('appearance,accent').eq('user_id', userId).maybeSingle().then(({ data, error: loadError }) => {
+    void supabase.from('user_interface_preferences').select('appearance,accent,background,theme_color').eq('user_id', userId).maybeSingle().then(({ data, error: loadError }) => {
       if (cancelled) return;
       if (loadError) setError(loadError.message);
-      if (data) setPreferences(data as ThemePreferences);
+      if (data) setPreferences({ ...fallback, ...data } as ThemePreferences);
       setLoading(false);
     });
     return () => { cancelled = true; };
