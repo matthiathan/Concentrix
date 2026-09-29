@@ -1,35 +1,12 @@
 {
-  "name": "concentrix-smart-coffee",
+  "name": "productivity-hub-production-bridge",
   "private": true,
-  "version": "0.2.1",
+  "version": "1.0.0",
   "type": "module",
-  "packageManager": "npm@10.9.2",
   "engines": {
-    "node": ">=20 <23"
+    "node": ">=20.19 <23"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "lint": "eslint ."
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.110.3",
-    "lucide-react": "^0.468.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.17.0",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "eslint": "^9.17.0",
-    "eslint-plugin-react-hooks": "^5.1.0",
-    "eslint-plugin-react-refresh": "^0.4.16",
-    "globals": "^15.14.0",
-    "typescript": "~5.6.2",
-    "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5"
+    "build": "rm -rf .productivityhub dist && git clone --depth 1 --branch main https://github.com/matthiathan/ProductivityHub.git .productivityhub && cd .productivityhub && npm install && VITE_SUPABASE_URL=$PH_SUPABASE_URL VITE_SUPABASE_PUBLISHABLE_KEY=$PH_SUPABASE_PUBLISHABLE_KEY npm run build && cp -R dist ../dist"
   }
 }
